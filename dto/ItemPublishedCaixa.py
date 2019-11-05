@@ -24,88 +24,89 @@ class ItemPublishedCaixa:
 
   @property
   def appraisalValue(self):
-    return self.appraisalValue
+    return self._appraisalValue
   
   @appraisalValue.setter
   def appraisalValue(self, appraisalValue):
-    self.appraisalValue = appraisalValue
+    self._appraisalValue = appraisalValue
 
   @property
   def appraisalMinimumValue(self):
-    return self.appraisalMinimumValue
+    return self._appraisalMinimumValue
   
   @appraisalMinimumValue.setter
   def appraisalMinimumValue(self, appraisalMinimumValue):
-    self.appraisalMinimumValue = appraisalMinimumValue
+    self._appraisalMinimumValue = appraisalMinimumValue
 
   @property
   def description(self):
-    return self.description
+    return self._description
   
   @description.setter
   def description(self, description):
-    self.description = description
+    self._description = description
 
   @property
   def typeImmobile(self):
-    return self.typeImmobile
+    return self._typeImmobile
   
   @typeImmobile.setter
   def typeImmobile(self, typeImmobile):
-    self.typeImmobile = typeImmobile      
+    self._typeImmobile = typeImmobile      
 
   @property
   def numberOfRoom(self):
-    return self.numberOfRoom
+    return self._numberOfRoom
   
   @numberOfRoom.setter
   def numberOfRoom(self, numberOfRoom):
-    self.numberOfRoom = numberOfRoom 
+    self._numberOfRoom = numberOfRoom 
 
   @property
   def situation(self):
-    return self.situation
+    return self._situation
   
   @situation.setter
   def situation(self, situation):
-    self.situation = situation 
+    self._situation = situation 
 
   @property
   def totalArea(self):
-    return self.totalArea
+    return self._totalArea
   
   @totalArea.setter
   def totalArea(self, totalArea):
-    self.totalArea = totalArea 
+    self._totalArea = totalArea 
 
   @property
   def privateArea(self):
-    return self.privateArea
+    return self._privateArea
   
   @privateArea.setter
   def privateArea(self, privateArea):
-    self.privateArea = privateArea 
+    self._privateArea = privateArea 
 
   @property
   def additionalInformation(self):
-    return self.additionalInformation
+    return self._additionalInformation
   
   @additionalInformation.setter
   def additionalInformation(self, additionalInformation):
-    self.additionalInformation = additionalInformation 
+    self._additionalInformation = additionalInformation 
 
   @property
   def auctionBid(self):
-    return self.auctionBid
+    return self._auctionBid
   
   @auctionBid.setter
   def auctionBid(self, auctionBid):
-    self.auctionBid = auctionBid 
+    self._auctionBid = auctionBid 
 
   @property
   def timeRemainingOnline(self):
-    return self.timeRemainingOnline
+    return self._timeRemainingOnline
   
   @timeRemainingOnline.setter
   def timeRemainingOnline(self, timeRemainingOnline):
-    self.timeRemainingOnline = timeRemainingOnline 
+    self._timeRemainingOnline = timeRemainingOnline 
+
