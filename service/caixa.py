@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup, Tag
-from src import constant
+import constant
 
 def getLinkAllImmobile(state, soup):
   allJavascript = soup.find('script', type="text/javascript").text
@@ -20,9 +20,7 @@ def initScrapingCaixa(state):
 
   listTr = soupList.find_all('tr')
 
-  #for listTd in listTr:
-
   listTd = listTr[1].find_all('td')
 
   print(listTd[0].find('a', href=True)['href'])
-  print(listTd[0].find('a').contents[0])
+  #print(listTd[0].find('a').contents[0])
