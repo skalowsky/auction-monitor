@@ -1,7 +1,6 @@
 import requests
 from bs4 import BeautifulSoup, Tag
-import caixa
-import constant
+from src import constant
 
 def getLinkAllImmobile(state, soup):
   allJavascript = soup.find('script', type="text/javascript").text
@@ -15,9 +14,8 @@ def initScrapingCaixa(state):
   page = requests.get(constant.URL_CAIXA, verify=False)
   soup = BeautifulSoup(page.text, 'html.parser')
 
-  getLinkAllImmobile(state, soup)
+  pageList = requests.get(constant.URL_CAIXA_LIST + getLinkAllImmobile('RS', soup), verify=False)
 
-  pageList = requests.get(constant.URL_CAIXA_LIST + caixa.getLinkAllImmobile('RS', soup), verify=False)
   soupList = BeautifulSoup(pageList.text, 'html.parser')
 
   listTr = soupList.find_all('tr')

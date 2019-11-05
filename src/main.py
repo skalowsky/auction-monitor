@@ -1,4 +1,7 @@
-import caixa
+from src.service import caixa
+import urllib3
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning) # supress warning
 
 caixa.initScrapingCaixa('RS')
 
