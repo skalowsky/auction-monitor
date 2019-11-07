@@ -1,13 +1,16 @@
 from service import caixa
 import urllib3
+from Error import ValueNotFound
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning) # supress warning
 
-caixa.initScrapingCaixa('RS')
+listOfLinks = caixa.initScrapingCaixa('RS')
 
+#print(listOfLinks[0])
+for link in listOfLinks:
+  caixa.extractInformationByLink(link)
 
-
-
+#caixa.extractInformationByLink('https://venda-imoveis.caixa.gov.br/sistema/detalhe-imovel.asp?hdnOrigem=index&hdnimovel=1044920976112')
 
 # Remover links inferiores
 #last_links = soup.find(class_='AlphaNav')

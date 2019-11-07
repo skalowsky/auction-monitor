@@ -4,6 +4,7 @@ class ItemPublishedCaixa:
     self.address = None
     self.appraisalValue = None
     self.appraisalMinimumValue = None
+    self.appraisalBetterValue = None
     self.auctionBid = None
     self.description = None
     self.typeImmobile = None
@@ -37,6 +38,14 @@ class ItemPublishedCaixa:
   @appraisalMinimumValue.setter
   def appraisalMinimumValue(self, appraisalMinimumValue):
     self._appraisalMinimumValue = appraisalMinimumValue
+
+  @property
+  def appraisalBetterValue(self):
+    return self.appraisalBetterValue
+  
+  @appraisalBetterValue.setter
+  def appraisalBetterValue(self, appraisalBetterValue):
+    self.appraisalBetterValue = appraisalBetterValue
 
   @property
   def description(self):
