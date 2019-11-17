@@ -1,2 +1,40 @@
-##Run project
-  py -B main.py
+instalation on dev mode:
+
+  requirements:
+    * python 3
+    * pip
+    * pipenv
+
+After obeying all requirements, it should be started the isolated environment using the command pipenv shell.
+
+*pipenv shell
+instalation on dev mode:
+
+  requirements:
+    * python 3
+    * pip
+    * pipenv
+
+After obeying all requirements, it should be started the isolated environment using the command pipenv shell.
+
+*pipenv shell
+
+When pipenv shell is over, the pipenv will create a layer that able you to install all dependencies that the project will need. Now is possible to run pipenv install and avoid the difference between the environments.
+
+* pipenv install
+
+The command 'pipenv install' will install all dependencies listed on Pipfile if there is no Pipefile.lock . However, is a good practice to generate the lock file to specify for the other environment what version of each package the project will use. 
+
+* pipenv lock
+
+Finally, it is possible to run the project running the command 'pipenv run python -B  main.py' where -B suppresses the unwanted warnings.
+
+*pipenv run python -B  main.py 
+
+When pipenv shell is over, the pipenv will create a layer that able you to install all dependencies that the project will need. Now is possible to run pipenv install and avoid the difference between the environments.
+
+* pipenv install
+
+The command 'pipenv install' will install all dependencies listed on Pipfile if there is no Pipefile.lock . However, is a good practice to generate the lock file to specify for the other environment what version of each package the project will use. 
+
+

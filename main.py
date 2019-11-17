@@ -8,7 +8,8 @@ listOfLinks = caixa.initScrapingCaixa('RS')
 
 #print(listOfLinks[0])
 for link in listOfLinks:
-  caixa.extractInformationByLink(link)
+  print(link)
+  #caixa.extractInformationByLink(link)
 
 #caixa.extractInformationByLink('https://venda-imoveis.caixa.gov.br/sistema/detalhe-imovel.asp?hdnOrigem=index&hdnimovel=1044920976112')
 
