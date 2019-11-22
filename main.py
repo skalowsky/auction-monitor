@@ -1,15 +1,17 @@
 from service import caixa
 import urllib3
 from Error import ValueNotFound
+import logging
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning) # supress warning
+logging.basicConfig(level=logging.INFO)
 
 listOfLinks = caixa.initScrapingCaixa('RS')
 
 #print(listOfLinks[0])
-for link in listOfLinks:
-  print(link)
-  #caixa.extractInformationByLink(link)
+#for link in listOfLinks:
+  #print(link)
+print(caixa.extractInformationByLink(listOfLinks[0]))
 
 #caixa.extractInformationByLink('https://venda-imoveis.caixa.gov.br/sistema/detalhe-imovel.asp?hdnOrigem=index&hdnimovel=1044920976112')
 

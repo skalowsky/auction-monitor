@@ -6,7 +6,6 @@ from bs4 import BeautifulSoup, Tag
 import constant
 from dto import ItemPublishedCaixa
 
-
 def printSoup(link):
   page = requests.get(link, verify=False)
   soup = BeautifulSoup(page.text, 'html.parser')
@@ -51,6 +50,8 @@ def extractInformationByLink(link):
     if 'erro' in soup:
       raise LinkNotFound(link)
 
+    logging.info(f'start scraping: {link}')
+
     itemPublishedCaixa.address = findAddress(soup)
     itemPublishedCaixa.appraisalValue = findAppraisalValue(soup)
     itemPublishedCaixa.timeRemainingOnline = findTimeRemainingOnline(soup)
@@ -72,17 +73,10 @@ def extractInformationByLink(link):
     itemPublishedCaixa.privateArea = findPrivateArea(soup)
     itemPublishedCaixa.additionalInformation = findAdditionalInformation(soup)
 
-  except ValueNotFound as err:
-    logging.warning('\nError message : ' + err._msg + 
-                    '\nLink: ' + link)
-    #print()
-    #print(printSoup(link))
-    
   except LinkNotFound as err:
-    logging.warning('\nError open link' + 
-                    '\nLink: ' + link)
+    logging.warning(f'\nError open link\nLink: {link}')
 
-  #print(itemPublishedCaixa.__dict__)
+  logging.info("end scraping")
   return itemPublishedCaixa
 
 def existArrayIndex(arrayList, index):
@@ -98,7 +92,8 @@ def findAddress(htmlText):
   if address != None and existArrayIndex(address, 0) :
     return address[0].text.replace('Endereço:', '')
   else:
-    raise ValueNotFound('Address not found.')    
+    logging.warning('Address not found.')
+    return None
 
 
 def findAppraisalValue(htmlText):
@@ -108,7 +103,8 @@ def findAppraisalValue(htmlText):
   if value != None:
     return value
   else:
-    raise ValueNotFound('Appraisal Value not found.') 
+    logging.warning('Appraisal Value not found.') 
+    return None
 
 def findTimeRemainingOnline(htmlText):
   try:
@@ -130,7 +126,8 @@ def findAppraisalMinimumValue(htmlText):
   if value != None:
     return value
   else:
-    raise ValueNotFound('Appraisal Minimum Value not found.')
+    logging.warning('Appraisal Minimum Value not found.')
+    return None
 
 def findAppraisalBetterValue(htmlText):
   appraisalBetterValue = htmlText.find('div', attrs={'class': 'content'}).find('p')
@@ -139,7 +136,8 @@ def findAppraisalBetterValue(htmlText):
   if value != None and value.isdigit():
     return value
   else:
-    raise ValueNotFound('Appraisal Better Value not found.')
+    logging.warning('Appraisal Better Value not found.')
+    return None
 
 def findDescription(htmlText):
   description = htmlText.find_all('p', attrs={'style': 'margin-bottom: 0.5em;'})
@@ -147,7 +145,8 @@ def findDescription(htmlText):
   if description != None and existArrayIndex(description, 1) :
     return description[1].text.replace('Descrição:', '')
   else:
-    raise ValueNotFound('Description not found.')    
+    logging.warning('Description not found.')    
+    return None
 
 def findTypeImmobile(htmlText):
   typeImmobile = htmlText.find_all('div', attrs={'class': 'control-item control-span-6_12'})[0].find('p').find_all('strong')
@@ -155,7 +154,8 @@ def findTypeImmobile(htmlText):
   if existArrayIndex(typeImmobile, 0) and typeImmobile != None:
     return typeImmobile[0].text
   else:
-    raise ValueNotFound('Type of Immobile not found')
+    logging.warning('Type of Immobile not found')
+    return None
 
 def findSituation(htmlText):
   situation = htmlText.find_all('div', attrs={'class': 'control-item control-span-6_12'})[0].find('p').find_all('strong')
@@ -163,7 +163,8 @@ def findSituation(htmlText):
   if existArrayIndex(situation, 1) and situation != None:
     return situation[1].text
   else:
-    raise ValueNotFound('Situation not found')
+    logging.warning('Situation not found')
+    return None
 
 def findNumberOfRoom(htmlText):
   numberOfRoom = htmlText.find_all('div', attrs={'class': 'control-item control-span-6_12'})[0].find('p').find_all('strong')
@@ -171,7 +172,8 @@ def findNumberOfRoom(htmlText):
   if existArrayIndex(numberOfRoom, 2) and numberOfRoom != None:
     return numberOfRoom[2].text
   else:
-    raise ValueNotFound('Number of Room not found')
+    logging.warning('Number of Room not found')
+    return None
 
 def findTotalArea(htmlText):
   totalArea = htmlText.find_all('div', attrs={'class': 'control-item control-span-6_12'})[1].find('p').find_all('span')
@@ -180,7 +182,8 @@ def findTotalArea(htmlText):
     if 'total' in total.text:
       return total.text.replace('Área total = ', '')
     
-  raise ValueNotFound('Total Area not found')
+  logging.warning('Total Area not found')
+  return None
 
 def findPrivateArea(htmlText):
   privateArea = htmlText.find_all('div', attrs={'class': 'control-item control-span-6_12'})[1].find('p').find_all('span')
@@ -189,7 +192,8 @@ def findPrivateArea(htmlText):
     if 'privativa' in private.text:
       return private.text.replace('Área privativa = ', '')
 
-  raise ValueNotFound('Private Area not found')
+  logging.warning('Private Area not found')
+  return None
 
 def findAdditionalInformation(htmlText):
   additionalInformation = htmlText.find('div', attrs={'class': 'related-box'}).find_all('p')
@@ -197,5 +201,5 @@ def findAdditionalInformation(htmlText):
   if additionalInformation != None and existArrayIndex(additionalInformation, 2):
     return additionalInformation[2].text.replace('\xa0', '')
   else:
-    raise ValueNotFound('Additional Information not found')
-
+    logging.warning('Additional Information not found')
+    return None
