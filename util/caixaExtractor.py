@@ -1,14 +1,21 @@
 import logging
 
 import requests
-from requests.exceptions import MissingSchema
 
 from bs4 import BeautifulSoup, ResultSet
 
-from exception.linkNotFound import LinkNotFound
-
 from dto.itemPublished import ItemPublished
 from dto.link import Link
+
+from enums.typeProperty import TypeProperty
+from enums.situation import Situation
+from enums.company import Company
+
+from exception.linkNotFound import LinkNotFound
+from exception.scrappingError import ScrappingError
+
+import util.converter as converter
+
 
 ERRO_TAG = "Ocorreu um erro durante o processamento de sua solicitação."
 
@@ -25,14 +32,14 @@ def getPageByLink(link: Link) -> BeautifulSoup:
   Returns:
       BeautifulSoup -- A third party library that convert a string into a soap. 
   """  
-  if not link or not link.link:
+  if not link or not link.url:
     raise LinkNotFound('Link received is null.')
 
-  page = requests.get(link.link, verify=False)
+  page = requests.get(link.url, verify=False)
   soup = BeautifulSoup(page.text, 'html.parser')    
 
   if ERRO_TAG in soup.currentTag.text:
-    raise LinkNotFound(f'The link´s response is invalid - {link.link}')
+    raise LinkNotFound(f'The link´s response is invalid - {link.url}')
 
   return soup
 
@@ -48,8 +55,9 @@ def extractInformationsByLink(link: Link) -> ItemPublished:
   """  
 
   itemPublished: ItemPublished = ItemPublished()
+  itemPublished.companyId = Company.CAIXA.value
 
-  logging.info(f'extracting information of link: {link.link}')
+  logging.info(f'Extracting information of link: {link.url}')
 
   try:
     soupPage = getPageByLink(link)
@@ -69,12 +77,10 @@ def extractInformationsByLink(link: Link) -> ItemPublished:
     setPrivateArea(itemPublished, soupPage)
     setLandArea(itemPublished, soupPage)
     #setAdditionalInformation(itemPublished, soupPage)
-    #setTimeRemainingOnline(itemPublished, soupPage)
+    setAuctionDate(itemPublished, soupPage)
 
-    print (itemPublished.__str__())
-  except Exception as e: 
-    print (str(e))   
-    itemPublished = ItemPublished()
+  except Exception as err: 
+    raise ScrappingError(f'Fail during the process of the item {itemPublished.id} - {err}')
   finally:
     return itemPublished
 
@@ -107,7 +113,7 @@ def setIdAndLink(itemPublished: ItemPublished, link: Link):
       itemPublished {ItemPublished} -- The carrier-class of property published.
       link {Link} -- A link instances with a valid string link into a link property.
   """  
-  itemPublished.id = link.link.split('=')[-1]
+  itemPublished.id = link.url.split('=')[-1]
   itemPublished.link = link
 
 def setAddress(itemPublished: ItemPublished, soupPage: BeautifulSoup):
@@ -127,25 +133,25 @@ def setAppraisalValue(itemPublished: ItemPublished, soupPage: BeautifulSoup):
   value = appraisalValue.text.split(':')[1].replace(' R$ ', '').replace('Valor mínimo de venda','')
 
   if existValidContent(value, 0, f'id {itemPublished.id}. Appraisal Value not found.') :
-    itemPublished.appraisalValue = value
+    itemPublished.appraisalValue = converter.strToFloat(value)
 
 def setAppraisalMinimumValue(itemPublished, soupPage):
   appraisalMinimumValue = soupPage.find('div', attrs={'class': 'content'}).find('p')  
   value = appraisalMinimumValue.text.split(':')[2].split(' ')[2]
 
-  isAppraivsalMinimun = appraisalMinimumValue.text.split(':')[1].find("Valor mínimo de venda") != -1 
+  isAppraisalMinimun = appraisalMinimumValue.text.split(':')[1].find("Valor mínimo de venda") != -1 
 
-  if existValidContent(value, 0, f'id {itemPublished.id}. Appraisal Minimum Value not found.') and isAppraivsalMinimun:
-    itemPublished.appraisalMinimumValue = value
+  if existValidContent(value, 0, f'id {itemPublished.id}. Appraisal Minimum Value not found.') and isAppraisalMinimun:
+    itemPublished.appraisalMinimumValue = converter.strToFloat(value)
 
 def setAppraisalBetterValue(itemPublished, soupPage):
   appraisalMinimumValue = soupPage.find('div', attrs={'class': 'content'}).find('p')  
   value = appraisalMinimumValue.text.split(':')[2].split(' ')[2]
 
-  isAppraivsalMinimun = appraisalMinimumValue.text.split(':')[1].find("Valor da melhor proposta") != -1 
+  isAppraisalMinimun = appraisalMinimumValue.text.split(':')[1].find("Valor da melhor proposta") != -1 
 
-  if existValidContent(value, 0, f'id {itemPublished.id}. Appraisal Minimum Value not found.') and isAppraivsalMinimun:
-    itemPublished.appraisalMinimumValue = value
+  if existValidContent(value, 0, f'id {itemPublished.id}. Appraisal Minimum Value not found.') and isAppraisalMinimun:
+    itemPublished.appraisalMinimumValue = converter.strToFloat(value)
 
 def setDescription(itemPublished, soupPage):
   description = soupPage.find_all('p', attrs={'style': 'margin-bottom: 0.5em;'})
@@ -154,22 +160,22 @@ def setDescription(itemPublished, soupPage):
     itemPublished.description = description[1].text.replace('Descrição:', '')
 
 def setTypeProperty(itemPublished, soupPage):
-  typeProperty = getValueByDescription(soupPage, 'Tipo de imóvel', 0)
+  typeProperty:str = getValueByDescription(soupPage, 'Tipo de imóvel', 0)
 
   if existValidContent(typeProperty, 0, f'id {itemPublished.id}. Type of Immobile not found.') :
-    itemPublished.typeProperty = typeProperty
+    itemPublished.typeProperty = TypeProperty.__members__[typeProperty.upper()]
 
 def setNumberOfRoom(itemPublished, soupPage):
   numberOfRoom = getValueByDescription(soupPage, 'Quartos', 0)
 
   if existValidContent(numberOfRoom, 0, f'id {itemPublished.id}. Number of Room not found.') :
-    itemPublished.numberOfRoom = numberOfRoom
+    itemPublished.numberOfRoom = converter.strToInt(numberOfRoom)
 
 def setSituation(itemPublished, soupPage):
   situation = getValueByDescription(soupPage, 'Situação', 0)
 
   if existValidContent(situation, 0, f'id {itemPublished.id}. Number of room not found.') :
-    itemPublished.situation = situation
+    itemPublished.situation = Situation.__members__[situation.upper()]
 
 def setGarage(itemPublished, soupPage):
   garage = getValueByDescription(soupPage, 'Garagem', 0)
@@ -181,22 +187,30 @@ def setTotalArea(itemPublished, soupPage):
   totalArea = getValueByDescription(soupPage, 'Área total', 1)
 
   if existValidContent(totalArea, 0, f'id {itemPublished.id}. Total area not found.') :
-    itemPublished.totalArea = totalArea
+    itemPublished.totalArea = converter.strToFloat(totalArea[:-2])
 
 def setPrivateArea(itemPublished, soupPage):
   privateArea = getValueByDescription(soupPage, 'Área privativa', 1)
 
   if existValidContent(privateArea, 0, f'id {itemPublished.id}. Private Area not found.') :
-    itemPublished.privateArea = privateArea
+    itemPublished.privateArea = converter.strToFloat(privateArea[:-2])
 
 def setLandArea(itemPublished, soupPage):
-  privateArea = getValueByDescription(soupPage, 'Área do terreno', 1)
+  landArea = getValueByDescription(soupPage, 'Área do terreno', 1)
 
-  if existValidContent(privateArea, 0, f'id {itemPublished.id}. Private Area not found.') :
-    itemPublished.privateArea = privateArea
+  if existValidContent(landArea, 0, f'id {itemPublished.id}. Land Area not found.') :
+    itemPublished.landArea = converter.strToFloat(landArea[:-2])
+
 # def setAdditionalInformation(itemPublished, soupPage):
 
-# def setTimeRemainingOnline(itemPublished, soupPage):
+def setAuctionDate(itemPublished, soupPage):
+  javaScriptTag = soupPage.find('script', type='text/javascript').text
+  strLista = javaScriptTag[javaScriptTag.find('strLista'): javaScriptTag.find('"||"\n\t\t')]
+  splitStrList = strLista.split('+')
+
+  if existValidContent(splitStrList, 1, f'id {itemPublished.id}. Auction Date not found.') :
+    strDate = splitStrList[1].replace('"', '').strip()
+    itemPublished.auctionDate = strDate
 
 def getValueByDescription(soupPage, description, sidePage: int):  
   span = soupPage.find_all('div', attrs={'class': 'control-item control-span-6_12'})[sidePage].find('p').find_all('span')

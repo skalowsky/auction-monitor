@@ -1,3 +1,6 @@
 {
-  "python.pythonPath": "C:\\Users\\mmarmit\\.virtualenvs\\scraping_v2-A9Z8KfBP\\Scripts\\python.exe"
+  "python.pythonPath": "C:\\Users\\mmarmit\\.virtualenvs\\auction-monitor-gwNSghnf\\Scripts\\python.exe",
+  "cSpell.words": [
+    "datefmt"
+  ]
 }

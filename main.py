@@ -1,16 +1,17 @@
 from util import caixa, caixaExtractor
 import urllib3
 import logging
+import util.api as api
 
 from dto.link import Link
+from dto.itemPublished import ItemPublished
 
 def configuration():
   urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning) # supress warning
 
   format: str = '%(asctime)s - %(levelname)s: %(message)s'
   datefmt: str = '%m/%d/%Y %I:%M:%S %p'
-  logging.basicConfig(level=logging.INFO, format=format, datefmt=datefmt)
-
+  logging.basicConfig(level=logging.DEBUG, format=format, datefmt=datefmt)
 
 
 def main():
@@ -22,13 +23,15 @@ def main():
 
 if __name__ == "__main__":
   configuration()
-  main()
+  # main()
 
-  # link: Link = Link()
-  # link.link = "https://venda-imoveis.caixa.gov.br/sistema/detalhe-imovel.asp?hdnOrigem=index&hdnimovel=8045600010698"
+  link: Link = Link()
+  link.url = "https://venda-imoveis.caixa.gov.br/sistema/detalhe-imovel.asp?hdnOrigem=index&hdnimovel=1555529270042"
 
-  # caixaExtractor.extractInformationsByLink(link)
-
-  #caixaExtractor.extractInformationsByLink(Link(""))
+  item: ItemPublished = caixaExtractor.extractInformationsByLink(link)
+  # print(item.__json__())
+  api.postItem(item)
+  print(item.auctionDate)
+  # caixaExtractor.extractInformationsByLink(Link(""))
   
 

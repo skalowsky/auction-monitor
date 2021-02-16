@@ -1,14 +1,15 @@
 from typing import List
 import requests
+import os
 from bs4 import BeautifulSoup, Tag
 from dto.link import Link
 
 """
-This class contains all functions that provaided the tools to scraper the 'Caixa Economica Federal'
+This class contains all functions that provaided the tools to scraper the 'Caixa Econômica Federal'
 """
 
-URL_CAIXA = 'https://venda-imoveis.caixa.gov.br/sistema/download-lista.asp'
-URL_CAIXA_LIST = 'https://venda-imoveis.caixa.gov.br'
+URL_CAIXA = os.getenv('URL_CAIXA')
+URL_CAIXA_LIST = os.getenv('URL_CAIXA_LIST')
 
 def getListOfLinkByState(state: str) -> List[Link]:
   """This function get all links contained on the official site, based on the provided state.
@@ -25,7 +26,7 @@ def getListOfLinkByState(state: str) -> List[Link]:
   #converting the main page into a soup (xml).
   mainSoupPage = BeautifulSoup(mainPageRequest.text, 'html.parser')
 
-  #returnig the new page based on main page with all links
+  #returning the new page based on main page with all links
   pageOfLinks = requests.get(buildLinkToListOfImovel(mainSoupPage, 'RS'), verify=False)
 
   #converting the page whit all links into a soup (xml).
@@ -91,7 +92,7 @@ def getTagTextDescritpion(tdTag: Tag) -> str:
   return tdTag.text.strip()
 
 def buildLinkToListOfImovel(soupPage: BeautifulSoup, state: str) -> str:
-  """Based on main page, this function build the link that will list all avaible imovel.
+  """Based on main page, this function build the link that will list all available imovel.
   
   Arguments:
       soupPage {BeautifulSoup} -- The main page.
@@ -105,4 +106,4 @@ def buildLinkToListOfImovel(soupPage: BeautifulSoup, state: str) -> str:
   link = javaScriptTag[javaScriptTag.find('"'): javaScriptTag.find(',')]
   link = link.replace('"', '').replace('+', '').replace(' ', '').replace('estado', state)
 
-  return "".join([URL_CAIXA_LIST, '/', link])
+  return f'{URL_CAIXA_LIST}/{link}'
