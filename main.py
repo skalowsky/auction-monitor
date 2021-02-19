@@ -26,12 +26,13 @@ if __name__ == "__main__":
   # main()
 
   link: Link = Link()
-  link.url = "https://venda-imoveis.caixa.gov.br/sistema/detalhe-imovel.asp?hdnOrigem=index&hdnimovel=1555529270042"
+  link.url = "https://venda-imoveis.caixa.gov.br/sistema/detalhe-imovel.asp?hdnOrigem=index&hdnimovel=8143700504439"
+  # link.url = "https://venda-imoveis.caixa.gov.br/sistema/detalhe-imovel.asp?hdnOrigem=index&hdnimovel=1555529270042" --naõ existe mais
 
   item: ItemPublished = caixaExtractor.extractInformationsByLink(link)
   # print(item.__json__())
-  api.postItem(item)
-  print(item.auctionDate)
+  # api.postItem(item)
+  print(item)
   # caixaExtractor.extractInformationsByLink(Link(""))
   
 
