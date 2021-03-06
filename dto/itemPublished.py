@@ -30,5 +30,5 @@ class ItemPublished:
     return Encoder().__json__(self)
 
   def __str__(self):
-    return f'id: {self.id}, address: {self.generalAddress} '
+    return f'id: {self.id}'
 

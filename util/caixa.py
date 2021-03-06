@@ -1,3 +1,4 @@
+import logging
 from typing import List
 import requests
 import os
@@ -26,8 +27,10 @@ def getListOfLinkByState(state: str) -> List[Link]:
   #converting the main page into a soup (xml).
   mainSoupPage = BeautifulSoup(mainPageRequest.text, 'html.parser')
 
+  # print(buildLinkToListOfImovel(mainSoupPage, 'RS'))
+
   #returning the new page based on main page with all links
-  pageOfLinks = requests.get(buildLinkToListOfImovel(mainSoupPage, 'RS'), verify=False)
+  pageOfLinks = requests.get(buildLinkToListOfImovel(mainSoupPage, state), verify=False)
 
   #converting the page whit all links into a soup (xml).
   soupOfAllLinks = BeautifulSoup(pageOfLinks.text, 'html.parser')
@@ -46,7 +49,7 @@ def getListOfLinkByState(state: str) -> List[Link]:
       tdTag = trTag.find_all('td')[index]
       
       if isDatailTag(tdTag):
-        link.link = getHRefPropertyLink(tdTag)
+        link.url = getHRefPropertyLink(tdTag)
 
       if link.__validLink__():
 
@@ -101,9 +104,13 @@ def buildLinkToListOfImovel(soupPage: BeautifulSoup, state: str) -> str:
   Returns:
       str -- The link with all imovel.
   """  
-  javaScriptTag = soupPage.find('script', type='text/javascript').text
-  
-  link = javaScriptTag[javaScriptTag.find('"'): javaScriptTag.find(',')]
-  link = link.replace('"', '').replace('+', '').replace(' ', '').replace('estado', state)
 
-  return f'{URL_CAIXA_LIST}/{link}'
+  javaScriptTag = soupPage.find('script', type='text/javascript').prettify()
+  
+  splitByQuotes = javaScriptTag.split('"')
+
+  link = f'{splitByQuotes[3]}{state}{splitByQuotes[5]}'
+
+  logging.info(f'URL builded: {URL_CAIXA_LIST}{link}')
+  
+  return f'{URL_CAIXA_LIST}{link}'

@@ -2,7 +2,6 @@ import logging
 import os
 import requests
 
-
 from dto.itemPublished import ItemPublished
 from requests import Response
 from requests.exceptions import HTTPError

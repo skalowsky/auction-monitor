@@ -7,4 +7,4 @@ class Encoder(JSONEncoder):
     return o.__dict__
 
   def __json__(self, o):
-    return json.dumps(o, indent=2, cls=Encoder)
+    return json.dumps(o, indent=2, cls=Encoder, ensure_ascii=False)

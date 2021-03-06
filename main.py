@@ -1,38 +1,66 @@
-from util import caixa, caixaExtractor
+import schedule
+import time
+import sys, getopt
+
 import urllib3
 import logging
-import util.api as api
 
-from dto.link import Link
-from dto.itemPublished import ItemPublished
+from schedules.scrapingJob import scrapingCaixaJob
+
+from enums.state import State
 
 def configuration():
   urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning) # supress warning
 
   format: str = '%(asctime)s - %(levelname)s: %(message)s'
   datefmt: str = '%m/%d/%Y %I:%M:%S %p'
-  logging.basicConfig(level=logging.DEBUG, format=format, datefmt=datefmt)
+  logging.basicConfig(level=logging.INFO, format=format, datefmt=datefmt)
 
+def jobs():
+  schedule.every().day.at("12:00").do(scrapingCaixaJob, state=State.RS)
+
+def runOnce():
+  scrapingCaixaJob(State.SC)
 
 def main():
-  links = caixa.getListOfLinkByState("RS")
-  for link in links:
-    print(link.__str__())
-    caixaExtractor.extractInformationsByLink(link)
+  jobs()
+  
+  # while True:
+  #   schedule.run_pending()
+  #   time.sleep(1)
 
+def runCustomFunctionBasedOnArgs(argv):
+  try:
+    opts, args = getopt.getopt(argv,"hr:",["runOnce="])
+  except getopt.GetoptError:
+    print ('main.py -r <true/false>')
+    sys.exit(2)
+  for opt, arg in opts:
+    if opt == '-h':
+      print ('test.py -r true/false')
+      sys.exit()    
+    if opt == '-r' and arg == 'true':
+      runOnce()
+
+# from util import caixa, caixaExtractor
+# from dto.itemPublished import ItemPublished
+# from dto.link import Link
 
 if __name__ == "__main__":
   configuration()
+
+  # runCustomFunctionBasedOnArgs(sys.argv[1:])
+  runOnce()
   # main()
 
-  link: Link = Link()
-  link.url = "https://venda-imoveis.caixa.gov.br/sistema/detalhe-imovel.asp?hdnOrigem=index&hdnimovel=8143700504439"
-  # link.url = "https://venda-imoveis.caixa.gov.br/sistema/detalhe-imovel.asp?hdnOrigem=index&hdnimovel=1555529270042" --naõ existe mais
+  # link: Link = Link()
+  # link.url = "https://venda-imoveis.caixa.gov.br/sistema/detalhe-imovel.asp?hdnOrigem=index&hdnimovel=1444400687014"
 
-  item: ItemPublished = caixaExtractor.extractInformationsByLink(link)
+  # item: ItemPublished = caixaExtractor.extractInformationsByLink(link)
+  # print('item.__json__()')
   # print(item.__json__())
   # api.postItem(item)
-  print(item)
+  # print(item)
   # caixaExtractor.extractInformationsByLink(Link(""))
   
 

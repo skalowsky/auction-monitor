@@ -12,5 +12,5 @@ class Link:
     return self.url
 
   def __validLink__(self) -> bool:
-    return hasattr(self, 'link')
+    return hasattr(self, 'url')
     # return True

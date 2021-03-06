@@ -18,7 +18,7 @@ import util.converter as converter
 
 
 ERRO_TAG = "Ocorreu um erro durante o processamento de sua solicitação."
-
+NOT_FOUND_ITEM = "O imóvel que você procura não está mais disponível para venda."
 def getPageByLink(link: Link) -> BeautifulSoup:
   """This function gets all information by a received link 
   
@@ -62,6 +62,9 @@ def extractInformationsByLink(link: Link) -> ItemPublished:
   try:
     soupPage = getPageByLink(link)
 
+    if NOT_FOUND_ITEM in soupPage.text:
+      return itemPublished
+
     setIdAndLink(itemPublished, link)
     setAddress(itemPublished, soupPage)
     setAppraisalValue(itemPublished, soupPage)
@@ -83,7 +86,6 @@ def extractInformationsByLink(link: Link) -> ItemPublished:
     raise ScrappingError(f'Fail during the process of the item {itemPublished.id} - {err}')
   finally:
     return itemPublished
-
 
 def existValidContent(item, index: int, messageError: str) -> bool:
   """This function verifies the consistency of the item extracted from soup.
@@ -130,28 +132,27 @@ def setAddress(itemPublished: ItemPublished, soupPage: BeautifulSoup):
 
 def setAppraisalValue(itemPublished: ItemPublished, soupPage: BeautifulSoup):
   appraisalValue = soupPage.find('div', attrs={'class': 'content'}).find('p')
-  value = appraisalValue.text.split(':')[1].replace(' R$ ', '').replace('Valor mínimo de venda','')
+
+  value = getPriceByDescription(appraisalValue.text, 'Valor de avaliação')
 
   if existValidContent(value, 0, f'id {itemPublished.id}. Appraisal Value not found.') :
     itemPublished.appraisalValue = converter.strToFloat(value)
 
 def setAppraisalMinimumValue(itemPublished, soupPage):
-  appraisalMinimumValue = soupPage.find('div', attrs={'class': 'content'}).find('p')  
-  value = appraisalMinimumValue.text.split(':')[2].split(' ')[2]
+  appraisalValue = soupPage.find('div', attrs={'class': 'content'}).find('p')  
+  
+  value = getPriceByDescription(appraisalValue.text, 'Valor mínimo de venda')
 
-  isAppraisalMinimun = appraisalMinimumValue.text.split(':')[1].find("Valor mínimo de venda") != -1 
-
-  if existValidContent(value, 0, f'id {itemPublished.id}. Appraisal Minimum Value not found.') and isAppraisalMinimun:
+  if existValidContent(value, 0, f'id {itemPublished.id}. Appraisal Minimum Value not found.'):
     itemPublished.appraisalMinimumValue = converter.strToFloat(value)
 
 def setAppraisalBetterValue(itemPublished, soupPage):
-  appraisalMinimumValue = soupPage.find('div', attrs={'class': 'content'}).find('p')  
-  value = appraisalMinimumValue.text.split(':')[2].split(' ')[2]
+  appraisalValue = soupPage.find('div', attrs={'class': 'content'}).find('p')  
+  
+  value = getPriceByDescription(appraisalValue.text, 'Valor da melhor proposta')
 
-  isAppraisalMinimun = appraisalMinimumValue.text.split(':')[1].find("Valor da melhor proposta") != -1 
-
-  if existValidContent(value, 0, f'id {itemPublished.id}. Appraisal Minimum Value not found.') and isAppraisalMinimun:
-    itemPublished.appraisalMinimumValue = converter.strToFloat(value)
+  if existValidContent(value, 0, f'id {itemPublished.id}. Appraisal Minimum Value not found.'):
+    itemPublished.appraisalBetterValue = converter.strToFloat(value)
 
 def setDescription(itemPublished, soupPage):
   description = soupPage.find_all('p', attrs={'style': 'margin-bottom: 0.5em;'})
@@ -204,7 +205,7 @@ def setLandArea(itemPublished, soupPage):
 # def setAdditionalInformation(itemPublished, soupPage):
 
 def setAuctionDate(itemPublished, soupPage):
-  javaScriptTag = soupPage.find('script', type='text/javascript').text
+  javaScriptTag = soupPage.find('script', type='text/javascript').prettify()
   strLista = javaScriptTag[javaScriptTag.find('strLista'): javaScriptTag.find('"||"\n\t\t')]
   splitStrList = strLista.split('+')
 
@@ -220,3 +221,12 @@ def getValueByDescription(soupPage, description, sidePage: int):
       return item.text.replace('<',' ').replace('>',' ').split(' ')[-1]
 
   return None
+
+def getPriceByDescription(text:str, description:str):
+  if description in text:
+    iRefStr = text.find(description) + description.__len__() + 5
+    iRefNextValue = text[iRefStr:].find(',') + 3
+
+    return text[iRefStr: iRefStr + iRefNextValue]
+  
+  return None;
