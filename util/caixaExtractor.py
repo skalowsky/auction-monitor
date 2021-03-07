@@ -1,3 +1,4 @@
+from exception.processError import ProcessError
 import logging
 
 import requests
@@ -59,33 +60,29 @@ def extractInformationsByLink(link: Link) -> ItemPublished:
 
   logging.info(f'Extracting information of link: {link.url}')
 
-  try:
-    soupPage = getPageByLink(link)
+  soupPage = getPageByLink(link)
 
-    if NOT_FOUND_ITEM in soupPage.text:
-      return itemPublished
+  if NOT_FOUND_ITEM in soupPage.text:
+    raise ProcessError(f'Link not available {link.url}.')
 
-    setIdAndLink(itemPublished, link)
-    setAddress(itemPublished, soupPage)
-    setAppraisalValue(itemPublished, soupPage)
-    setAppraisalMinimumValue(itemPublished, soupPage)
-    setAppraisalBetterValue(itemPublished, soupPage)
-    setDescription(itemPublished, soupPage)
-    setTypeProperty(itemPublished, soupPage)
-    setNumberOfRoom(itemPublished, soupPage)
-    setSituation(itemPublished, soupPage)
-    setGarage(itemPublished, soupPage)
+  setIdAndLink(itemPublished, link)
+  setAddress(itemPublished, soupPage)
+  setAppraisalValue(itemPublished, soupPage)
+  setAppraisalMinimumValue(itemPublished, soupPage)
+  setAppraisalBetterValue(itemPublished, soupPage)
+  setDescription(itemPublished, soupPage)
+  setTypeProperty(itemPublished, soupPage)
+  setNumberOfRoom(itemPublished, soupPage)
+  setSituation(itemPublished, soupPage)
+  setGarage(itemPublished, soupPage)
 
-    setTotalArea(itemPublished, soupPage)
-    setPrivateArea(itemPublished, soupPage)
-    setLandArea(itemPublished, soupPage)
-    #setAdditionalInformation(itemPublished, soupPage)
-    setAuctionDate(itemPublished, soupPage)
+  setTotalArea(itemPublished, soupPage)
+  setPrivateArea(itemPublished, soupPage)
+  setLandArea(itemPublished, soupPage)
+  #setAdditionalInformation(itemPublished, soupPage)
+  setAuctionDate(itemPublished, soupPage)
 
-  except Exception as err: 
-    raise ScrappingError(f'Fail during the process of the item {itemPublished.id} - {err}')
-  finally:
-    return itemPublished
+  return itemPublished
 
 def existValidContent(item, index: int, messageError: str) -> bool:
   """This function verifies the consistency of the item extracted from soup.

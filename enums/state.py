@@ -1,4 +1,6 @@
-class State(str):
+from enum import Enum
+
+class State(Enum):
   AC='AC'
   AL='AL'
   AP='AP'

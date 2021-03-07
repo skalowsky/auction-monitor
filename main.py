@@ -3,13 +3,14 @@ import time
 import sys, getopt
 
 import urllib3
-import logging
+import coloredlogs, logging
 
 from schedules.scrapingJob import scrapingCaixaJob
 
 from enums.state import State
 
 def configuration():
+  coloredlogs.install()
   urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning) # supress warning
 
   format: str = '%(asctime)s - %(levelname)s: %(message)s'
@@ -53,6 +54,7 @@ if __name__ == "__main__":
   runOnce()
   # main()
 
+  # print(State._member_names_) # prints [1, 2]
   # link: Link = Link()
   # link.url = "https://venda-imoveis.caixa.gov.br/sistema/detalhe-imovel.asp?hdnOrigem=index&hdnimovel=1444400687014"
 

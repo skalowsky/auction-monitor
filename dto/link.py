@@ -8,9 +8,7 @@ class Link:
     self.state: str
 
   def __str__(self) -> str:
-    # return 'self.url'
     return self.url
 
   def __validLink__(self) -> bool:
     return hasattr(self, 'url')
-    # return True
